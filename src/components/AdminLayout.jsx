@@ -9,6 +9,7 @@ import {
   AppstoreOutlined,
   ClusterOutlined,
   KeyOutlined,
+  ClockCircleOutlined,
 } from "@ant-design/icons";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -20,6 +21,7 @@ const items = [
   { key: "/users", icon: <UserOutlined />, label: "İstifadəçilər" },
   { key: "/shops", icon: <ShopOutlined />, label: "Mağazalar" },
   { key: "/ads", icon: <CarOutlined />, label: "Elanlar" },
+  { key: "/pending-ads", icon: <ClockCircleOutlined />, label: "Gözləmədə olan elanlar" },
   { key: "/brands", icon: <TagsOutlined />, label: "Markalar" },
   { key: "/product-models", icon: <AppstoreOutlined />, label: "Modellər" },
   { key: "/car-makes", icon: <ClusterOutlined />, label: "Avtomobillər" },

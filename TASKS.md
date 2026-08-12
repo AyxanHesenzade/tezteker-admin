@@ -86,3 +86,68 @@ tarixlidir (2026-02, 2026-07) və backend-in real `random_int` OTP generasiyası
 **PM-dən xahiş**: bunu backend komandasına bildir ki, `backend/TASKS.md`-ə uyğun bir bug/task
 əlavə etsinlər — admin panel tərəfində əlavə ediləcək bir şey yoxdur, gözlənilən davranış
 backend-in fərqli, real təsadüfi kodlar yaratmasıdır.
+
+---
+
+## Task 2 — Elan Moderasiyası: "Gözləmədə olan elanlar" səhifəsi
+
+### Məqsəd
+İndiyə qədər bütün yeni elanlar (fərdi və mağaza) yaradılan kimi `pending` statusu ilə
+qalır. Backend tərəf tamamlanıb və yoxlanılıb (bax `backend/TASKS.md` — "Elan moderasiyası"
+task-ının Status bölməsi). Admin bu elanları görüb təsdiq və ya rədd etməlidir ki, saytda
+görünsün.
+
+### Backend API (hazır, deploy olunub — birbaşa istifadə et)
+
+- **`GET /api/admin/ads?status=pending`** — gözləmədə olan elanların səhifələnmiş siyahısı.
+  Mövcud admin ads list endpoint-i, sadəcə `status=pending` query param-ı ilə çağır (digər
+  mövcud filtrlərlə eyni pattern — axtarış/pagination parametrləri də dəstəklənir, `Ads.jsx`-
+  dəki mövcud servis çağırışına bax).
+- **`GET /api/admin/ads/{ad}`** — tək elanın tam detalları (şəkillər, tag-lər/spec-lər,
+  qiymət, satıcı məlumatı) — detal görünüşü üçün istifadə et, mövcud endpoint, dəyişməyib.
+- **`POST /api/admin/ads/{ad}/approve`** — body YOXDUR. Uğurlu cavab: `200`,
+  `{"status":"success","message":"Ad approved","data":{...ad, "status":"active"...}}`.
+  Elan artıq `pending` deyilsə: `422`, `{"status":"error","message":"Yalnız gözləmədə
+  (pending) olan elanlar təsdiqlənə bilər."}`.
+- **`POST /api/admin/ads/{ad}/reject`** — body YOXDUR. Uğurlu cavab: `200`,
+  `{"status":"success","message":"Ad rejected and deleted","data":null}` — **DİQQƏT: bu,
+  elanı bazadan TAM SİLİR** (spec/şəkil qeydləri və Cloudinary şəkilləri daxil, geri
+  qaytarıla bilməz), sadəcə status dəyişmir. Uğursuz halda (pending deyilsə): eyni formatda
+  `422`.
+
+Bütün endpoint-lər mövcud admin `auth:sanctum` + `admin` middleware qrupundadır, digər admin
+ads route-larının yanında.
+
+### Nəyi etmək lazımdır
+
+1. **API servis qatı** (`src/api/admin.js`): mövcud `adsService` pattern-inə uyğun, yuxarıdakı
+   4 endpoint-ə sorğu atan funksiyalar əlavə et (məs. `getPendingAds(params)`,
+   `getAdDetail(id)`, `approveAd(id)`, `rejectAd(id)`).
+
+2. **Yeni səhifə** (`src/pages/PendingAds.jsx` və ya mövcud Ads səhifəsinə tab/filter
+   şəklində): `status=pending` olan elanları siyahıla.
+   - Hər sətirdə/kartda elanın əsas məlumatları görünsün: şəkil (kiçik önizləmə), başlıq,
+     kateqoriya (təkər/disk), qiymət, satıcı adı/tipi (fərdi/mağaza), tarix.
+   - Detala baxmaq üçün: elanın bütün şəkillərini, texniki göstəricilərini (tag-lərini) və
+     tam təsvirini göstərən bir görünüş (modal və ya ayrı səhifə) olsun ki, admin qərar
+     verməzdən əvvəl hər şeyi görə bilsin.
+   - Hər elanın yanında iki fəaliyyət düyməsi: **"Təsdiq et"** və **"İmtina et"**.
+   - "İmtina et" düyməsi silinməzdən əvvəl təsdiq dialoqu (`Popconfirm` və ya `Modal.confirm`)
+     göstərsin — bu əməliyyat elanı bazadan TAM SİLİR, geri qaytarıla bilməz.
+   - Əməliyyat uğurlu olduqda siyahıdan həmin elan dərhal çıxarılsın (optimistic update və ya
+     yenidən fetch), uyğun `toast` mesajı göstərilsin.
+
+3. **Routing** (`src/App.jsx`): qorunan route əlavə et, mövcud pattern-ə uyğun.
+
+4. **Naviqasiya menyusu** (`src/components/AdminLayout.jsx`): sol menyuya "Gözləmədə olan
+   elanlar" adında yeni item, uyğun ikon ilə. Mümkünsə yanında gözləyən say (badge) göstər.
+
+### Qəbul meyarları
+- Yeni səhifə menyudan əlçatandır, yalnız giriş etmiş admin görür
+- `pending` statuslu elanlar siyahıda düzgün görünür, təsdiq/rədd edildikdən sonra siyahıdan
+  çıxır
+- Elanın bütün detallarına (şəkillər, tag-lər, qiymət) baxmaq mümkündür, qərar bu əsasda
+  verilə bilir
+- "İmtina et" əməliyyatı təsdiq dialoqu ilə qorunur (yanlışlıqla silməyə qarşı)
+- Mövcud admin panel dizayn dilini (Ant Design defolt komponentləri) izləyir
+- Real backend datası ilə test edilib (backend task tamamlandıqdan sonra)

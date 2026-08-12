@@ -167,4 +167,20 @@ export const adsService = {
     const res = await api.delete(`/admin/ads/${id}`);
     return res.data;
   },
+  getPendingAds: async (params) => {
+    const res = await api.get("/admin/ads", { params: { ...params, status: "pending" } });
+    return res.data;
+  },
+  getAdDetail: async (id) => {
+    const res = await api.get(`/admin/ads/${id}`);
+    return res.data;
+  },
+  approveAd: async (id) => {
+    const res = await api.post(`/admin/ads/${id}/approve`);
+    return res.data;
+  },
+  rejectAd: async (id) => {
+    const res = await api.post(`/admin/ads/${id}/reject`);
+    return res.data;
+  },
 };

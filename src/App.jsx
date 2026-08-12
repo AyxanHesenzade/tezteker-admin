@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Shops from "./pages/Shops";
 import Ads from "./pages/Ads";
+import PendingAds from "./pages/PendingAds";
 import Brands from "./pages/Brands";
 import ProductModels from "./pages/ProductModels";
 import CarMakes from "./pages/CarMakes";
@@ -44,6 +45,7 @@ function AppRoutes() {
         <Route path="/users" element={<Users />} />
         <Route path="/shops" element={<Shops />} />
         <Route path="/ads" element={<Ads />} />
+        <Route path="/pending-ads" element={<PendingAds />} />
         <Route path="/brands" element={<Brands />} />
         <Route path="/product-models" element={<ProductModels />} />
         <Route path="/car-makes" element={<CarMakes />} />
